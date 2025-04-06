@@ -1,6 +1,7 @@
 // deno-lint-ignore-file require-await
 
 import {
+OnPostTransaction,
   SagaOrchestrator,
   TransactionDefinition,
 } from "./saga-orchestrator.ts";
@@ -63,6 +64,21 @@ const activateTicketForceFailure: TransactionDefinition<Ticket> = {
   },
 };
 
+const fakeDb = {
+  tickets: new Map(),
+}
+
+const onPostTransaction: OnPostTransaction<Ticket> = (context) => {
+  const ticket = fakeDb.tickets.get(context.id);
+  fakeDb.tickets.set(context.id, { ...ticket, ...context });
+  console.debug({
+    message: 'onPostTransaction',
+    oldTicket: ticket,
+    newTicket: { ...context },
+  })
+  return Promise.resolve();
+}
+
 async function main() {
   const createTicketDto: Ticket = {
     id: crypto.randomUUID(),
@@ -76,7 +92,7 @@ async function main() {
       createCode,
       debitPoints,
       activateTicket,
-    ], createTicketDto);
+    ], createTicketDto, onPostTransaction);
     const sagaSuccessRes = await sagaSuccess.execute();
     console.info(sagaSuccessRes);
 

@@ -9,9 +9,9 @@
 // but ideally there should be a separation of what is the input, what is the context and what is the output
 
 // TODO:
-// 1. add ways to save the context/state/T between transactions, and decide the approach (as hooks,
+// [OK, added post transaction hook] 1. add ways to save the context/state/T between transactions, and decide the approach (as hooks,
 // as default [accepting a repository in constructor], as transactions [idk])
-// 2. add tests, many of them
+// [OK] 2. add tests, many of them
 // 3. inject logger or something
 // 4. review exception handling
 // 5. have ways of "restoring" a saga if it's terminated in the middle of processing (like in case system receives SIGKILL)
@@ -21,6 +21,8 @@ export interface TransactionDefinition<T> {
   execute: (context: T) => Promise<T>;
   compensate: (context: T) => Promise<T>;
 }
+
+export type OnPostTransaction<T> = (context: T) => Promise<void>;
 
 export type TransactionLogs = Array<
   { transactionName: string; status: "completed" | "failed" | "compensated" }
@@ -39,12 +41,14 @@ export class SagaOrchestrator<T> {
   private context: T;
   private currentTransactionIndex: number;
   private compensateTransactionLogs?: TransactionLogs;
+  private onPostTransaction?: OnPostTransaction;
 
-  constructor(transactions: TransactionDefinition<T>[], initialData: T) {
+  constructor(transactions: TransactionDefinition<T>[], initialData: T, onPostTransaction?: OnPostTransaction) {
     this.transactions = transactions;
     this.completedTransactions = [];
     this.context = initialData;
     this.currentTransactionIndex = 0;
+    this.onPostTransaction = onPostTransaction;
   }
 
   /**
@@ -61,6 +65,12 @@ export class SagaOrchestrator<T> {
         this.context = await currentTransaction.execute(this.context);
         this.completedTransactions.push(currentTransaction);
         this.currentTransactionIndex++;
+
+        if (this.onPostTransaction) {
+          // it's up to the onPostTransaction to decide if it throws an error and stops the saga,
+          // of if they simply silence it (by using a try catch or something)
+          await this.onPostTransaction(this.context);
+        }
       } catch (error) {
         console.error(error);
         return this.compensate();
