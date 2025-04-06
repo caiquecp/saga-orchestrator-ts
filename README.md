@@ -1,6 +1,7 @@
 # Deno Saga Orchestrator
 
-A simple and generic Saga pattern implementation for Deno to handle distributed transactions.
+A simple and generic Saga pattern implementation for Deno to handle distributed
+transactions.
 
 ## Features
 
@@ -14,8 +15,8 @@ A simple and generic Saga pattern implementation for Deno to handle distributed 
 ```ts
 const saga = new SagaOrchestrator([
   createCode,
-  debitPoints,  
-  activateTicket
+  debitPoints,
+  activateTicket,
 ], initialData);
 
 const result = await saga.execute();

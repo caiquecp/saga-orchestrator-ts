@@ -111,7 +111,8 @@ export class SagaOrchestrator<T> {
     return {
       success: false,
       data: this.context,
-      error: "Generic error, check compensate transaction logs for more details",
+      error:
+        "Generic error, check compensate transaction logs for more details",
       compensateTransactionLogs: this.compensateTransactionLogs,
     };
   }
