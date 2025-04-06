@@ -41,9 +41,13 @@ export class SagaOrchestrator<T> {
   private context: T;
   private currentTransactionIndex: number;
   private compensateTransactionLogs?: TransactionLogs;
-  private onPostTransaction?: OnPostTransaction;
+  private onPostTransaction?: OnPostTransaction<T>;
 
-  constructor(transactions: TransactionDefinition<T>[], initialData: T, onPostTransaction?: OnPostTransaction) {
+  constructor(
+    transactions: TransactionDefinition<T>[],
+    initialData: T,
+    onPostTransaction?: OnPostTransaction<T>,
+  ) {
     this.transactions = transactions;
     this.completedTransactions = [];
     this.context = initialData;
