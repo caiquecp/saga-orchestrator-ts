@@ -71,11 +71,13 @@ async function main() {
   }
 
   try {
-    const saga = new SagaOrchestrator([createCode, debitPoints, activateTicket], createTicketDto);
-    // const saga = new SagaOrchestrator([createCode, debitPoints, activateTicketForceFailure], createTicketDto);
-    const res = await saga.execute();
+    const sagaSuccess = new SagaOrchestrator([createCode, debitPoints, activateTicket], createTicketDto);
+    const sagaSuccessRes = await sagaSuccess.execute();
+    console.info(sagaSuccessRes);
 
-    console.info(res);
+    const sagaFailure = new SagaOrchestrator([createCode, debitPoints, activateTicketForceFailure], createTicketDto);
+    const sagaFailureRes = await sagaFailure.execute();
+    console.info(sagaFailureRes);
   } catch (error) {
     console.error(error);
   }

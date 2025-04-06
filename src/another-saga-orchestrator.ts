@@ -40,7 +40,7 @@ export class SagaOrchestrator<T> {
   async execute(): Promise<SagaResult<T>> {
     this.currentTransactionIndex = 0;
 
-    while (this.currentTransactionIndex >= 0) {
+    while (this.currentTransactionIndex < this.transactions.length) {
       const currentTransaction = this.transactions[this.currentTransactionIndex];
       
       try {
