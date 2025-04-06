@@ -8,6 +8,14 @@
 // 1. at first, I'll make it accept, hold (as context) and resolve with the same data type
 // but ideally there should be a separation of what is the input, what is the context and what is the output
 
+// TODO:
+// 1. add ways to save the context/state/T between transactions, and decide the approach (as hooks,
+// as default [accepting a repository in constructor], as transactions [idk])
+// 2. add tests, many of them
+// 3. inject logger or something
+// 4. review exception handling
+// 5. have ways of "restoring" a saga if it's terminated in the middle of processing (like in case system receives SIGKILL)
+
 export interface TransactionDefinition<T> {
   name: string;
   execute: (context: T) => Promise<T>;
